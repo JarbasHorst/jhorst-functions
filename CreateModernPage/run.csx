@@ -1,7 +1,14 @@
 using System.Net;
 
+private const string ADMIN_USER_CONFIG_KEY = "SharePointAdminUser"; 
+private const string ADMIN_PASSWORD_CONFIG_KEY = "SharePointAdminPassword"; 
+
 public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceWriter log)
 {
+    
+    string adminUserName = System.Environment.GetEnvironmentVariable(ADMIN_USER_CONFIG_KEY, EnvironmentVariableTarget.Process); 
+    string adminPassword = System.Environment.GetEnvironmentVariable(ADMIN_PASSWORD_CONFIG_KEY, EnvironmentVariableTarget.Process);
+    log.Info(adminUserName);
     log.Info("C# HTTP trigger function processed a request.");
 
     // parse query parameter
