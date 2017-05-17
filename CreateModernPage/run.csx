@@ -8,7 +8,7 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
     
     string adminUserName = System.Environment.GetEnvironmentVariable(ADMIN_USER_CONFIG_KEY, EnvironmentVariableTarget.Process); 
     string adminPassword = System.Environment.GetEnvironmentVariable(ADMIN_PASSWORD_CONFIG_KEY, EnvironmentVariableTarget.Process);
-    log.Info(adminUserName);
+    
     log.Info("C# HTTP trigger function processed a request.");
 
     // parse query parameter
