@@ -1,4 +1,9 @@
+using System;
 using System.Net;
+using Newtonsoft.Json;
+using Microsoft.SharePoint.Client;
+using OfficeDevPnP.Core;
+using OfficeDevPnP.Core.Pages;
 
 private const string ADMIN_USER_CONFIG_KEY = "SharePointAdminUser"; 
 private const string ADMIN_PASSWORD_CONFIG_KEY = "SharePointAdminPassword"; 
