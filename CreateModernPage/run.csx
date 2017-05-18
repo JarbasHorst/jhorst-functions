@@ -16,7 +16,7 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
 
     if (siteUrl.Contains("www.contoso.com")) 
     { 
-        // N.B. the “www.contoso.com” URL indicates the local workbench in SPFx.. 
+        // N.B. the "www.contoso.com" URL indicates the local workbench in SPFx.
         return req.CreateResponse(HttpStatusCode.BadRequest, "Error: please run in the context of a real SharePoint site, not the local workbench. We need this to know which site to create the page in!"); 
     } 
 
