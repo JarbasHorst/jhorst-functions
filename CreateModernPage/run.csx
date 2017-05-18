@@ -5,11 +5,14 @@ private const string ADMIN_PASSWORD_CONFIG_KEY = "SharePointAdminPassword";
 
 public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceWriter log)
 {
+    try
+    {
+
     log.Info($"C# HTTP trigger function processed a request. RequestUri={req.RequestUri}");
 
     // Collect site/page details from request body.
     var pci = await req.Content.ReadAsAsync<PageCreationInformation>(); 
-    log.Info($"Received siteUrl={pci.siteUrl}, pageName={pci.pageName}, pageText={pci.pageText}"); 
+    log.Info($"Received siteUrl={pci.SiteUrl}, pageName={pci.PageName}, pageText={pci.PageText}"); 
 
     if (siteUrl.Contains("www.contoso.com")) 
     { 
@@ -25,7 +28,7 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
 
     // Auth to SharePoint and get ClientContext.
     ClientContext ctx = 
-        new OfficeDevPnP.Core.AuthenticationManager().GetSharePointOnlineAuthenticatedContextTenant(siteUrl, adminUserName, adminPassword);
+        new OfficeDevPnP.Core.AuthenticationManager().GetSharePointOnlineAuthenticatedContextTenant(pci.SiteUrl, adminUserName, adminPassword);
     Site site = ctx.Site;
     ctx.Load(site);
     ctx.ExecuteQueryRetry();
@@ -34,7 +37,7 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
     log.Info($"Will attempt to create page with name {pci.PageName}");
 
     ClientSidePage page = new ClientSidePage(ctx);
-    ClientSideText cstxt = new ClientSideText() { Text = pageText };
+    ClientSideText cstxt = new ClientSideText() { Text = pci.PageText };
     page.AddControl(cstxt, 0);
 
     // Page will be created if it doesn't exist, otherwise overwritten if it does.
@@ -43,6 +46,13 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
     return pci.PageName == null
         ? req.CreateResponse(HttpStatusCode.BadRequest, "Please pass site URL, page name and page text in request body!")
         : req.CreateResponse(HttpStatusCode.OK, "Created page " + pci.PageName);
+
+    }
+    catch (Exception ex)
+    {
+        log.Error(ex.Message);
+        return req.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+    }
 }
 
 public sealed class PageCreationInformation 
