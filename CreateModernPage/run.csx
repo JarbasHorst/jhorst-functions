@@ -12,46 +12,47 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
 {
     try
     {
-
-    log.Info($"C# HTTP trigger function processed a request. RequestUri={req.RequestUri}");
-
-    // Collect site/page details from request body.
-    var pci = await req.Content.ReadAsAsync<PageCreationInformation>(); 
-    log.Info($"Received siteUrl={pci.SiteUrl}, pageName={pci.PageName}, pageText={pci.PageText}"); 
-
-    if (pci.SiteUrl.Contains("www.contoso.com")) 
-    { 
-        // N.B. the "www.contoso.com" URL indicates the local workbench in SPFx.
-        return req.CreateResponse(HttpStatusCode.BadRequest, "Error: please run in the context of a real SharePoint site, not the local workbench. We need this to know which site to create the page in!"); 
-    } 
-
-    // Fetch auth credentials from config - N.B. consider use of app authentication for production code!
-    string adminUserName = System.Environment.GetEnvironmentVariable(ADMIN_USER_CONFIG_KEY, EnvironmentVariableTarget.Process); 
-    string adminPassword = System.Environment.GetEnvironmentVariable(ADMIN_PASSWORD_CONFIG_KEY, EnvironmentVariableTarget.Process);
     
-    log.Info($"Will attempt to authenticate to SharePoint with username {adminUserName}");
+        log.Info($"C# HTTP trigger function processed a request. RequestUri={req.RequestUri}");
 
-    // Auth to SharePoint and get ClientContext.
-    ClientContext ctx = 
-        new OfficeDevPnP.Core.AuthenticationManager().GetSharePointOnlineAuthenticatedContextTenant(pci.SiteUrl, adminUserName, adminPassword);
-    Site site = ctx.Site;
-    ctx.Load(site);
-    ctx.ExecuteQueryRetry();
+        // Collect site/page details from request body.
+        var pci = await req.Content.ReadAsAsync<PageCreationInformation>(); 
+        log.Info($"Received siteUrl={pci.SiteUrl}, pageName={pci.PageName}, pageText={pci.PageText}"); 
 
-    log.Info($"Successfully authenticated to site {ctx.Url}.");
-    log.Info($"Will attempt to create page with name {pci.PageName}");
+        if (pci.SiteUrl.Contains("www.contoso.com")) 
+        { 
+            // N.B. the "www.contoso.com" URL indicates the local workbench in SPFx.
+            return req.CreateResponse(HttpStatusCode.BadRequest, "Error: please run in the context of a real SharePoint site, not the local workbench. We need this to know which site to create the page in!"); 
+        } 
 
-    ClientSidePage page = new ClientSidePage(ctx);
-    ClientSideText cstxt = new ClientSideText() { Text = pci.PageText };
-    page.AddControl(cstxt, 0);
+        // Fetch auth credentials from config - N.B. consider use of app authentication for production code!
+        string adminUserName = System.Environment.GetEnvironmentVariable(ADMIN_USER_CONFIG_KEY, EnvironmentVariableTarget.Process); 
+        string adminPassword = System.Environment.GetEnvironmentVariable(ADMIN_PASSWORD_CONFIG_KEY, EnvironmentVariableTarget.Process);
+        
+        log.Info($"Will attempt to authenticate to SharePoint with username {adminUserName}");
 
-    // Page will be created if it doesn't exist, otherwise overwritten if it does.
-    page.Save(pci.PageName);
+        // Auth to SharePoint and get ClientContext.
+        ClientContext ctx = 
+            new OfficeDevPnP.Core.AuthenticationManager().GetSharePointOnlineAuthenticatedContextTenant(pci.SiteUrl, adminUserName, adminPassword);
+        Site site = ctx.Site;
+        ctx.Load(site);
+        ctx.ExecuteQueryRetry();
 
-    return pci.PageName == null
-        ? req.CreateResponse(HttpStatusCode.BadRequest, "Please pass site URL, page name and page text in request body!")
-        : req.CreateResponse(HttpStatusCode.OK, "Created page " + pci.PageName);
+        log.Info("Test");
 
+        log.Info($"Successfully authenticated to site {ctx.Url}.");
+        log.Info($"Will attempt to create page with name {pci.PageName}");
+
+        ClientSidePage page = new ClientSidePage(ctx);
+        ClientSideText cstxt = new ClientSideText() { Text = pci.PageText };
+        page.AddControl(cstxt, 0);
+
+        // Page will be created if it doesn't exist, otherwise overwritten if it does.
+        page.Save(pci.PageName);
+
+        return pci.PageName == null
+            ? req.CreateResponse(HttpStatusCode.BadRequest, "Please pass site URL, page name and page text in request body!")
+            : req.CreateResponse(HttpStatusCode.OK, "Created page " + pci.PageName);
     }
     catch (Exception ex)
     {
