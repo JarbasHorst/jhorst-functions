@@ -13,6 +13,8 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
     try
     {
     
+log.Info("Test");
+
         log.Info($"C# HTTP trigger function processed a request. RequestUri={req.RequestUri}");
 
         // Collect site/page details from request body.
