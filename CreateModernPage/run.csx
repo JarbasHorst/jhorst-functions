@@ -12,9 +12,6 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
 {
     try
     {
-    
-log.Info("Test");
-
         log.Info($"C# HTTP trigger function processed a request. RequestUri={req.RequestUri}");
 
         // Collect site/page details from request body.
@@ -39,8 +36,6 @@ log.Info("Test");
         Site site = ctx.Site;
         ctx.Load(site);
         ctx.ExecuteQueryRetry();
-
-        log.Info("Test");
 
         log.Info($"Successfully authenticated to site {ctx.Url}.");
         log.Info($"Will attempt to create page with name {pci.PageName}");
